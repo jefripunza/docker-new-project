@@ -17,7 +17,7 @@ docker run -d --name ci4 \
   -p 81:80 \
   -p 8081:8080 \
   -e CODE_SERVER_PASSWORD=rahasia \
-  irfanaarr/docker-new-project-codeigniter
+  jefriherditriyanto/docker-new-project-codeigniter
 ```
 
 Access:
@@ -50,7 +50,7 @@ docker run -d --name ci4 \
   -p 8081:8080 \
   -e CODE_SERVER_PASSWORD=rahasia \
   -v "$(pwd)/app:/app" \
-  irfanaarr/docker-new-project-codeigniter
+  jefriherditriyanto/docker-new-project-codeigniter
 ```
 
 Notes:
@@ -64,7 +64,7 @@ Example `docker-compose.yml`:
 ```yaml
 services:
   ci4:
-    image: irfanaarr/docker-new-project-codeigniter
+    image: jefriherditriyanto/docker-new-project-codeigniter
     container_name: ci4
     ports:
       - "81:80"
