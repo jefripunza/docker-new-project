@@ -6,7 +6,7 @@ on:
       - publish
 
 jobs:
-  docker:
+  docker_hub:
     runs-on: ubuntu-latest
 
     steps:
