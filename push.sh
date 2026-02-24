@@ -5,7 +5,7 @@ set -e
 # Configuration
 # ==============================
 DOCKER_USERNAME="jefriherditriyanto"
-IMAGE_NAME="docker-new-project-codeigniter"
+IMAGE_NAME="docker-new-project"
 PLATFORMS="linux/amd64,linux/arm64"
 
 # ==============================
