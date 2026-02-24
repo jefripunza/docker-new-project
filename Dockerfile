@@ -6,7 +6,7 @@
 FROM dunglas/frankenphp:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV SERVER_NAME=:80
+# ENV SERVER_NAME=:80
 
 # --------------------------------------------
 # Install system dependencies
@@ -104,6 +104,12 @@ COPY Caddyfile /etc/frankenphp/Caddyfile
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
+
+# --------------------------------------------
+# Expose ports
+# --------------------------------------------
+EXPOSE 80
+EXPOSE 8080
 
 # --------------------------------------------
 # Entrypoint

@@ -63,12 +63,25 @@ if [ -n "$INIT_FRAMEWORK" ]; then
   fi
 else
   echo "ℹ️  INIT_FRAMEWORK not set, skipping framework initialization"
+
+  if [ ! -f "$APP_DIR/public/index.php" ]; then
+    echo "🧩 No framework selected. Creating default $APP_DIR/public/index.php (phpinfo)"
+    mkdir -p "$APP_DIR/public"
+    cat > "$APP_DIR/public/index.php" <<'PHP'
+<?php
+phpinfo();
+PHP
+    chown -R www-data:www-data "$APP_DIR/public"
+  fi
 fi
 
 # ------------------------------------------
 # Start code-server (background)
 # ------------------------------------------
 echo "🔵 Starting code-server..."
+
+# Unset PORT to prevent code-server from using it (FrankenPHP may set PORT=80)
+unset PORT
 
 code-server \
   --bind-addr ${CODE_SERVER_HOST}:${CODE_SERVER_PORT} \
