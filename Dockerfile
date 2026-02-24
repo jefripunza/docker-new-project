@@ -98,15 +98,6 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 WORKDIR /app
 
 # --------------------------------------------
-# Install Latest CodeIgniter 4 (stable)
-# --------------------------------------------
-RUN composer create-project codeigniter4/appstarter /tmp/ci4 --no-interaction \
-    && cp -R /tmp/ci4/. /app \
-    && rm -rf /tmp/ci4 \
-    && chown -R www-data:www-data /app \
-    && chmod -R 775 /app/writable
-
-# --------------------------------------------
 # Copy Caddyfile & entrypoint
 # --------------------------------------------
 COPY Caddyfile /etc/frankenphp/Caddyfile

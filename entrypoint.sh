@@ -10,6 +10,7 @@ CODE_SERVER_HOST=${CODE_SERVER_HOST:-0.0.0.0}
 CODE_SERVER_AUTH=${CODE_SERVER_AUTH:-password}
 CODE_SERVER_PASSWORD=${CODE_SERVER_PASSWORD:-admin123}
 APP_DIR=${APP_DIR:-/app}
+INIT_FRAMEWORK=${INIT_FRAMEWORK:-}
 
 echo "======================================="
 echo "🚀 Container Starting..."
@@ -21,6 +22,48 @@ echo "======================================="
 mkdir -p "$APP_DIR"
 
 export PASSWORD="$CODE_SERVER_PASSWORD"
+
+# ------------------------------------------
+# Framework Initialization (if needed)
+# ------------------------------------------
+if [ -n "$INIT_FRAMEWORK" ]; then
+  # Check if /app is empty (only . and .. exist)
+  if [ -z "$(ls -A $APP_DIR)" ]; then
+    echo "📦 Initializing framework: $INIT_FRAMEWORK"
+    
+    case "$INIT_FRAMEWORK" in
+      ci4|codeigniter4)
+        echo "🔧 Installing CodeIgniter 4..."
+        composer create-project codeigniter4/appstarter /tmp/ci4 --no-interaction
+        cp -R /tmp/ci4/. "$APP_DIR"
+        rm -rf /tmp/ci4
+        chown -R www-data:www-data "$APP_DIR"
+        chmod -R 775 "$APP_DIR/writable"
+        echo "✅ CodeIgniter 4 installed"
+        ;;
+      
+      laravel12|laravel)
+        echo "🔧 Installing Laravel 12..."
+        composer create-project laravel/laravel /tmp/laravel --no-interaction
+        cp -R /tmp/laravel/. "$APP_DIR"
+        rm -rf /tmp/laravel
+        chown -R www-data:www-data "$APP_DIR"
+        chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
+        echo "✅ Laravel installed"
+        ;;
+      
+      *)
+        echo "⚠️  Unknown framework: $INIT_FRAMEWORK"
+        echo "    Supported: ci4, codeigniter4, laravel12, laravel"
+        ;;
+    esac
+  else
+    echo "📁 /app is not empty, skipping framework initialization"
+    echo "   Using existing project"
+  fi
+else
+  echo "ℹ️  INIT_FRAMEWORK not set, skipping framework initialization"
+fi
 
 # ------------------------------------------
 # Start code-server (background)
