@@ -1,49 +1,37 @@
 #!/bin/bash
+set -e
 
 # ==============================
 # Configuration
 # ==============================
 DOCKER_USERNAME="jefriherditriyanto"
 IMAGE_NAME="docker-new-project-codeigniter"
+PLATFORMS="linux/amd64,linux/arm64"
 
 # ==============================
 # Validation
 # ==============================
 if [ -z "$1" ]; then
   echo "❌ Version tag is required"
-  echo "Usage: ./push.sh v1.0.0"
+  echo "Usage: ./push-multiarch.sh v1.0.0"
   exit 1
 fi
 
 VERSION="$1"
 
 # ==============================
-# Build Image
+# Build & Push (Multi-Arch)
 # ==============================
-echo "🚀 Building image..."
-docker build -t ${IMAGE_NAME}:latest .
+echo "🚀 Building & pushing multi-arch image..."
+echo "📦 Platforms: ${PLATFORMS}"
 
-if [ $? -ne 0 ]; then
-  echo "❌ Build failed"
-  exit 1
-fi
+docker buildx build \
+  --platform ${PLATFORMS} \
+  -t ${DOCKER_USERNAME}/${IMAGE_NAME}:${VERSION} \
+  -t ${DOCKER_USERNAME}/${IMAGE_NAME}:latest \
+  --push \
+  .
 
-# ==============================
-# Tag Image
-# ==============================
-echo "🏷️  Tagging images..."
-docker tag ${IMAGE_NAME}:latest ${DOCKER_USERNAME}/${IMAGE_NAME}:latest
-docker tag ${IMAGE_NAME}:latest ${DOCKER_USERNAME}/${IMAGE_NAME}:${VERSION}
-
-# ==============================
-# Push Image
-# ==============================
-echo "📤 Pushing latest..."
-docker push ${DOCKER_USERNAME}/${IMAGE_NAME}:latest
-
-echo "📤 Pushing ${VERSION}..."
-docker push ${DOCKER_USERNAME}/${IMAGE_NAME}:${VERSION}
-
-echo "✅ Done!"
-echo "✔ ${DOCKER_USERNAME}/${IMAGE_NAME}:latest"
+echo "✅ Multi-arch image pushed successfully!"
 echo "✔ ${DOCKER_USERNAME}/${IMAGE_NAME}:${VERSION}"
+echo "✔ ${DOCKER_USERNAME}/${IMAGE_NAME}:latest"
