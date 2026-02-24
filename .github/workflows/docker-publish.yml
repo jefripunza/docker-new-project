@@ -7,7 +7,7 @@ on:
 
 jobs:
   docker_hub:
-    runs-on: docker-runner
+    runs-on: self-hosted
 
     steps:
       - name: Checkout source
