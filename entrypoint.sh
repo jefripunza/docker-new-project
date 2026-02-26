@@ -24,11 +24,35 @@ mkdir -p "$APP_DIR"
 export PASSWORD="$CODE_SERVER_PASSWORD"
 
 # ------------------------------------------
+# Start code-server (background)
+# ------------------------------------------
+echo "🔵 Starting code-server..."
+
+# Unset PORT to prevent code-server from using it (FrankenPHP may set PORT=80)
+unset PORT
+
+code-server \
+  --bind-addr ${CODE_SERVER_HOST}:${CODE_SERVER_PORT} \
+  --auth ${CODE_SERVER_AUTH} \
+  "$APP_DIR" &
+
+CODE_SERVER_PID=$!
+
+# ------------------------------------------
+# Start FrankenPHP (foreground style control)
+# ------------------------------------------
+echo "🟢 Starting FrankenPHP..."
+
+frankenphp run --config /etc/frankenphp/Caddyfile &
+
+FRANKENPHP_PID=$!
+
+# ------------------------------------------
 # Framework Initialization (if needed)
 # ------------------------------------------
 if [ -n "$INIT_FRAMEWORK" ]; then
   # Check if /app is empty (only . and .. exist)
-  if [ -z "$(ls -A $APP_DIR)" ]; then
+  if [ ! -f "$(ls -A $APP_DIR)" ] || [ ! -f "$APP_DIR/public/index.php" ]; then
     echo "📦 Initializing framework: $INIT_FRAMEWORK"
     
     case "$INIT_FRAMEWORK" in
@@ -63,8 +87,9 @@ if [ -n "$INIT_FRAMEWORK" ]; then
   fi
 else
   echo "ℹ️  INIT_FRAMEWORK not set, skipping framework initialization"
+fi
 
-  if [ ! -f "$APP_DIR/public/index.php" ]; then
+if [ ! -f "$APP_DIR/public/index.php" ]; then
     echo "🧩 No framework selected. Creating default $APP_DIR/public/index.php (phpinfo)"
     mkdir -p "$APP_DIR/public"
     cat > "$APP_DIR/public/index.php" <<'PHP'
@@ -72,32 +97,7 @@ else
 phpinfo();
 PHP
     chown -R www-data:www-data "$APP_DIR/public"
-  fi
 fi
-
-# ------------------------------------------
-# Start code-server (background)
-# ------------------------------------------
-echo "🔵 Starting code-server..."
-
-# Unset PORT to prevent code-server from using it (FrankenPHP may set PORT=80)
-unset PORT
-
-code-server \
-  --bind-addr ${CODE_SERVER_HOST}:${CODE_SERVER_PORT} \
-  --auth ${CODE_SERVER_AUTH} \
-  "$APP_DIR" &
-
-CODE_SERVER_PID=$!
-
-# ------------------------------------------
-# Start FrankenPHP (foreground style control)
-# ------------------------------------------
-echo "🟢 Starting FrankenPHP..."
-
-frankenphp run --config /etc/frankenphp/Caddyfile &
-
-FRANKENPHP_PID=$!
 
 # ------------------------------------------
 # Graceful shutdown handler

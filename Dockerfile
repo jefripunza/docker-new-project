@@ -112,6 +112,12 @@ EXPOSE 80
 EXPOSE 8080
 
 # --------------------------------------------
+# Health check
+# --------------------------------------------
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:80/ || exit 1
+
+# --------------------------------------------
 # Entrypoint
 # --------------------------------------------
 ENTRYPOINT ["/entrypoint.sh"]
